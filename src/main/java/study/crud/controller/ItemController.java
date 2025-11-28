@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import study.crud.domain.Item;
 import study.crud.dto.ItemRequestDto;
 import study.crud.dto.ItemResponseDto;
+import study.crud.service.ItemLockService;
 import study.crud.service.ItemService;
 
 import java.util.Optional;
@@ -20,6 +21,7 @@ import java.util.Optional;
 public class ItemController {
 
     private final ItemService itemService;
+    private final ItemLockService itemLockService;
 
     /**
      * 상품 등록
@@ -63,7 +65,7 @@ public class ItemController {
      */
     @PatchMapping("/{itemId}/quantity")
     public ResponseEntity<ItemResponseDto.DecreaseDto> decreaseQuantity(@PathVariable("itemId") Long itemId, @RequestParam int amount) throws Exception {
-        return ResponseEntity.of(Optional.of(itemService.decrease(itemId, amount)));
+        return ResponseEntity.of(Optional.of(itemLockService.decreaseWithLock(itemId, amount)));
     }
 
 }

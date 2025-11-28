@@ -9,6 +9,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import study.crud.domain.Item;
 import study.crud.dto.ItemRequestDto;
@@ -86,19 +87,13 @@ public class ItemService {
     /**
      * 재고 감소
      */
-    //@Retryable이 @Transactional보다 위에 와야 트랜잭션이 매번 새로 생성됨
-    @Retryable(
-            value = ObjectOptimisticLockingFailureException.class,
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 50)
-    )
-    @Transactional  //synchronized랑 같이 쓰면 동기화x
+    @Transactional
     public ItemResponseDto.DecreaseDto decrease(Long itemId, int amount) throws Exception {
-                Item item = itemRepository.findByIdWithOptimisticLock(itemId).orElseThrow();  //예외처리
-                item.decreaseQuantity(amount);
-                return ItemResponseDto.DecreaseDto.builder()
-                        .itemId(item.getId())
-                        .quantity(item.getQuantity())
-                        .build();
+        Item item = itemRepository.findById(itemId).orElseThrow();  //예외처리
+        item.decreaseQuantity(amount);
+        return ItemResponseDto.DecreaseDto.builder()
+                .itemId(item.getId())
+                .quantity(item.getQuantity())
+                .build();
     }
 }

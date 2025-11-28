@@ -14,8 +14,14 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Boolean existsByCode(String code);
 
-    //락을 걸기 위해 조회 쿼리를 별도로 생성
-    @Lock(LockModeType.OPTIMISTIC)  //낙관적 락
     @Query("select i from Item i where i.id = :id")
     Optional<Item> findByIdWithOptimisticLock(Long id);
+
+    //네임드 락 설정
+    @Query(value = "select get_lock(:key, 3000)", nativeQuery = true)
+    void getLock(String key);  //key = 락의 이름
+
+    //네임드 락 해제
+    @Query(value = "select release_lock(:key)", nativeQuery = true)
+    void releaseLock(String key);
 }
