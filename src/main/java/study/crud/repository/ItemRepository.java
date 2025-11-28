@@ -14,8 +14,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Boolean existsByCode(String code);
 
-    //비관적 락을 걸기 위해 조회 쿼리를 별도로 생성
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    //락을 걸기 위해 조회 쿼리를 별도로 생성
+    @Lock(LockModeType.OPTIMISTIC)  //낙관적 락
     @Query("select i from Item i where i.id = :id")
-    Optional<Item> findByIdForUpdate(Long id);
+    Optional<Item> findByIdWithOptimisticLock(Long id);
 }

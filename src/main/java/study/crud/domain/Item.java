@@ -28,6 +28,10 @@ public class Item extends BaseEntity {
 
     private int price;
 
+    //낙관적 락은 버전 필드 필요
+    @Version
+    private Long version;
+
     public void updateItem(String name, int quantity, int price) {
         this.name = name;
         this.quantity = quantity;

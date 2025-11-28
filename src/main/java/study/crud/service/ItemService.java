@@ -1,6 +1,7 @@
 package study.crud.service;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.StaleObjectStateException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -84,11 +85,11 @@ public class ItemService {
      */
     @Transactional  //synchronized랑 같이 쓰면 동기화x
     public ItemResponseDto.DecreaseDto decrease(Long itemId, int amount) throws Exception {
-        Item item = itemRepository.findByIdForUpdate(itemId).orElseThrow();  //예외처리
-        item.decreaseQuantity(amount);
-        return ItemResponseDto.DecreaseDto.builder()
-                .itemId(item.getId())
-                .quantity(item.getQuantity())
-                .build();
+                Item item = itemRepository.findByIdWithOptimisticLock(itemId).orElseThrow();  //예외처리
+                item.decreaseQuantity(amount);
+                return ItemResponseDto.DecreaseDto.builder()
+                        .itemId(item.getId())
+                        .quantity(item.getQuantity())
+                        .build();
     }
 }

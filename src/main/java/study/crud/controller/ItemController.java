@@ -1,8 +1,11 @@
 package study.crud.controller;
 
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.StaleObjectStateException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.*;
 import study.crud.domain.Item;
 import study.crud.dto.ItemRequestDto;
@@ -60,7 +63,16 @@ public class ItemController {
      */
     @PatchMapping("/{itemId}/quantity")
     public ResponseEntity<ItemResponseDto.DecreaseDto> decreaseQuantity(@PathVariable("itemId") Long itemId, @RequestParam int amount) throws Exception {
-        return ResponseEntity.of(Optional.of(itemService.decrease(itemId, amount)));
+        ItemResponseDto.DecreaseDto decreaseDto;
+        while (true) {
+            try {
+                decreaseDto = itemService.decrease(itemId, amount);
+                return ResponseEntity.of(Optional.of(decreaseDto));
+            } catch (ObjectOptimisticLockingFailureException e) {
+                System.out.println("잡은 예외: " + e.getClass().getName());
+                Thread.sleep(50);  //50ms동안 sleep
+            }
+        }
     }
 
 }
