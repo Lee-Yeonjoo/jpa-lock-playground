@@ -63,16 +63,7 @@ public class ItemController {
      */
     @PatchMapping("/{itemId}/quantity")
     public ResponseEntity<ItemResponseDto.DecreaseDto> decreaseQuantity(@PathVariable("itemId") Long itemId, @RequestParam int amount) throws Exception {
-        ItemResponseDto.DecreaseDto decreaseDto;
-        while (true) {
-            try {
-                decreaseDto = itemService.decrease(itemId, amount);
-                return ResponseEntity.of(Optional.of(decreaseDto));
-            } catch (ObjectOptimisticLockingFailureException e) {
-                System.out.println("잡은 예외: " + e.getClass().getName());
-                Thread.sleep(50);  //50ms동안 sleep
-            }
-        }
+        return ResponseEntity.of(Optional.of(itemService.decrease(itemId, amount)));
     }
 
 }
